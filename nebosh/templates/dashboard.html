@@ -245,7 +245,7 @@
     }
     .tick-toggle.saving .tick-box{ opacity:.6; }
 
-    /* Click-to-edit learner name */
+    /* Click-to-edit learner name / writer */
     .editable-name{
         cursor:text;
         border-bottom:1px dashed transparent;
@@ -267,6 +267,18 @@
         background:var(--surface);
     }
     .editable-name-input:focus{ outline:none; }
+
+    .editable-writer{
+        cursor:text;
+        border-bottom:1px dashed transparent;
+        padding-bottom:1px;
+        transition:border-color .15s ease;
+        font-weight:600;
+        color:var(--ink);
+    }
+    .editable-writer:hover{
+        border-bottom-color:var(--line);
+    }
 
     .row-actions{
         display:flex;
@@ -560,7 +572,11 @@
                               data-id="{{ record.id }}"
                               title="Click to edit name">{{ record.learner_name }}</span>
                     </td>
-                    <td>{{ record.writer }}{% if record.care_of %}({{record.care_of}}){% endif %}</td>
+                    <td>
+                        <span class="editable-writer"
+                              data-id="{{ record.id }}"
+                              title="Click to edit writer">{{ record.writer }}</span>{% if record.care_of %}({{record.care_of}}){% endif %}
+                    </td>
 
                     <td>
                         <label class="tick-toggle">
@@ -896,6 +912,56 @@ document.querySelectorAll(".editable-name").forEach(span => {
                     .catch(() => {
                         span.textContent = currentText;
                         alert("Could not update name. Please try again.");
+                    });
+            } else {
+                span.textContent = currentText;
+            }
+        };
+
+        input.addEventListener("blur", () => finishEdit(true));
+        input.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") { e.preventDefault(); input.blur(); }
+            if (e.key === "Escape") { finished = true; span.textContent = currentText; }
+        });
+    });
+});
+
+/* ---- Click-to-edit writer ---- */
+document.querySelectorAll(".editable-writer").forEach(span => {
+    span.addEventListener("click", function () {
+        if (this.querySelector("input")) return; // already editing
+
+        const id = this.dataset.id;
+        const currentText = this.textContent.trim();
+
+        const input = document.createElement("input");
+        input.type = "text";
+        input.value = currentText;
+        input.className = "editable-name-input";
+
+        this.textContent = "";
+        this.appendChild(input);
+        input.focus();
+        input.select();
+
+        let finished = false;
+
+        const finishEdit = (save) => {
+            if (finished) return;
+            finished = true;
+
+            const newValue = input.value.trim();
+
+            if (save && newValue && newValue !== currentText) {
+                inlineUpdate(id, "writer", newValue)
+                    .then(data => {
+                        span.textContent = data.value;
+                        const editBtn = document.querySelector(`.edit-btn[data-id="${id}"]`);
+                        if (editBtn) editBtn.dataset.writer = data.value;
+                    })
+                    .catch(() => {
+                        span.textContent = currentText;
+                        alert("Could not update writer. Please try again.");
                     });
             } else {
                 span.textContent = currentText;

@@ -129,12 +129,17 @@ def inline_update(request, record_id):
 
     field = data.get("field")
     value = data.get("value")
+    value = (value or "").strip()
 
     if field == "learner_name":
-        value = (value or "").strip()
         if not value:
             return JsonResponse({"error": "Name cannot be empty"}, status=400)
         record.learner_name = value
+    
+    elif field == "writer":
+        if not value:
+            return JsonResponse({"error": "Writer cannot be empty"}, status=400)
+        record.writer = value
 
     elif field in ("submitted", "uploaded"):
         setattr(record, field, bool(value))
