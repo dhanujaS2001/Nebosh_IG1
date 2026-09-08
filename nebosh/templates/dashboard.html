@@ -19,6 +19,10 @@
         --brick-tint: #F3E0DD;
         --sage:       #5F7A5C;
         --sage-tint:  #E2EADF;
+
+        /* brand palette, matches reference UI */
+        --brand:      #2F6FED;
+        --brand-dark: #1F3F73;
     }
 
     .register-wrap{
@@ -58,8 +62,8 @@
     }
 
     .btn-ink{
-        background:var(--ink);
-        border:1px solid var(--ink);
+        background:var(--brand);
+        border:1px solid var(--brand);
         color:#fff;
         font-size:.9rem;
         padding:.5rem 1rem;
@@ -69,7 +73,7 @@
         gap:.45rem;
         transition:background .15s ease;
     }
-    .btn-ink:hover{ background:#0F1720; color:#fff; }
+    .btn-ink:hover{ background:var(--brand-dark); color:#fff; }
 
     .btn-outline-ink{
         background:transparent;
@@ -90,11 +94,13 @@
         background:var(--surface);
         border:1px solid var(--line);
         border-radius:6px;
-        /* overflow:hidden removed — was clipping the filter dropdown */
+        overflow-x:auto;
+        -webkit-overflow-scrolling:touch;
     }
 
     table.ledger-table{
         width:100%;
+        min-width:820px;   /* forces horizontal scroll instead of squeezing columns */
         border-collapse:collapse;
         margin:0;
     }
@@ -128,16 +134,20 @@
     }
 
     table.ledger-table thead th{
-        background:var(--surface);
-        color:var(--slate);
+        background:var(--brand-dark);
+        color:#fff;
         font-weight:500;
         font-size:.8rem;
         text-transform:none;
         letter-spacing:.01em;
-        border-bottom:1px solid var(--line);
+        border-bottom:none;
         padding:.85rem 1rem;
         white-space:nowrap;
     }
+    table.ledger-table thead tr:first-child th:first-child{ border-top-left-radius:8px; }
+    table.ledger-table thead tr:first-child th:last-child{ border-top-right-radius:8px; }
+    #careOfFilterBtn{ color:#fff !important; }
+
     table.ledger-table tbody td{
         padding:.85rem 1rem;
         border-bottom:1px solid var(--line);
@@ -171,16 +181,92 @@
         height:6px;
         border-radius:50%;
     }
-    .pill-yes{ background:var(--sage-tint); color:var(--sage); }
-    .pill-yes::before{ background:var(--sage); }
-    .pill-no{ background:#EFEFEA; color:var(--slate); }
-    .pill-no::before{ background:var(--slate); }
     .pill-pass{ background:var(--sage-tint); color:var(--sage); }
     .pill-pass::before{ background:var(--sage); }
     .pill-fail{ background:var(--brick-tint); color:var(--brick); }
     .pill-fail::before{ background:var(--brick); }
     .pill-pending{ background:var(--gold-tint); color:var(--gold); }
     .pill-pending::before{ background:var(--gold); }
+
+    /* Tick checkbox toggle for Submitted / Uploaded */
+    .tick-toggle{
+        display:inline-flex;
+        align-items:center;
+        gap:.45rem;
+        cursor:pointer;
+        user-select:none;
+    }
+    .tick-toggle input[type="checkbox"]{
+        position:absolute;
+        opacity:0;
+        width:0;
+        height:0;
+    }
+    .tick-toggle .tick-box{
+        width:19px;
+        height:19px;
+        border:1.5px solid var(--line);
+        border-radius:5px;
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+        background:var(--surface);
+        transition:background .15s ease, border-color .15s ease;
+        flex-shrink:0;
+    }
+    .tick-toggle .tick-box .bi{
+        font-size:.72rem;
+        color:#fff;
+        opacity:0;
+        transform:scale(.5);
+        transition:opacity .12s ease, transform .12s ease;
+    }
+    .tick-toggle input[type="checkbox"]:checked + .tick-box{
+        background:var(--sage);
+        border-color:var(--sage);
+    }
+    .tick-toggle input[type="checkbox"]:checked + .tick-box .bi{
+        opacity:1;
+        transform:scale(1);
+    }
+    .tick-toggle input[type="checkbox"]:focus-visible + .tick-box{
+        outline:2px solid var(--brand);
+        outline-offset:1px;
+    }
+    .tick-toggle .tick-label{
+        font-size:.82rem;
+        color:var(--slate);
+        transition:color .15s ease;
+        white-space:nowrap;
+    }
+    .tick-toggle input[type="checkbox"]:checked ~ .tick-label{
+        color:var(--sage);
+        font-weight:500;
+    }
+    .tick-toggle.saving .tick-box{ opacity:.6; }
+
+    /* Click-to-edit learner name */
+    .editable-name{
+        cursor:text;
+        border-bottom:1px dashed transparent;
+        padding-bottom:1px;
+        transition:border-color .15s ease;
+    }
+    .editable-name:hover{
+        border-bottom-color:var(--line);
+    }
+    .editable-name-input{
+        font:inherit;
+        font-weight:600;
+        color:var(--ink);
+        border:1px solid var(--brand);
+        border-radius:4px;
+        padding:.15rem .4rem;
+        width:100%;
+        max-width:220px;
+        background:var(--surface);
+    }
+    .editable-name-input:focus{ outline:none; }
 
     .row-actions{
         display:flex;
@@ -219,45 +305,77 @@
         .register-head{ align-items:flex-start; }
     }
 
+    /* --- Stat cards (compact) --- */
     .stat-grid{
         display:grid;
-        grid-template-columns:repeat(auto-fit, minmax(140px, 1fr));
-        gap:.75rem;
-        margin-bottom:1.5rem;
+        grid-template-columns:repeat(auto-fit, minmax(120px, 1fr));
+        gap:.5rem;
+        margin-bottom:1.25rem;
     }
     .stat-card{
+        display:flex;
+        align-items:center;
+        gap:.55rem;
         background:var(--surface);
         border:1px solid var(--line);
-        border-radius:6px;
-        padding:.9rem 1rem;
+        border-radius:8px;
+        padding:1.5rem .65rem;
         text-decoration:none;
-        display:block;
-        transition:border-color .15s ease, box-shadow .15s ease;
+        transition:box-shadow .15s ease, border-color .15s ease;
     }
-    .stat-card:hover{
-        border-color:var(--ink);
-        box-shadow:0 2px 8px rgba(30,42,48,.06);
+    .stat-card:hover{ box-shadow:0 2px 8px rgba(30,42,48,.08); }
+    .stat-card.active{ background:var(--paper); border-color:var(--accent, var(--brand)); }
+
+    .stat-icon{
+        width:28px; height:28px;
+        border-radius:50%;
+        display:flex; align-items:center; justify-content:center;
+        color:#fff;
+        font-size:.8rem;
+        flex-shrink:0;
+        background:var(--accent, var(--brand));
     }
-    .stat-card.active{
-        border-color:var(--ink);
-        background:var(--paper);
-    }
-    .stat-card .stat-count{
+    .stat-text{ display:flex; flex-direction:column; line-height:1.15; }
+    .stat-count{
         font-family:"Lora", Georgia, serif;
-        font-weight:600;
-        font-size:1.6rem;
+        font-weight:700;
+        font-size:1rem;
         color:var(--ink);
         line-height:1;
-        display:block;
-        margin-bottom:.3rem;
     }
-    .stat-card .stat-label{
-        font-size:.8rem;
-        color:var(--slate);
+    .stat-label{
+        font-size:.6rem;
+        font-weight:600;
         text-transform:uppercase;
-        letter-spacing:.02em;
+        letter-spacing:.03em;
+        color:var(--accent, var(--slate));
+        margin-top:.15rem;
+        white-space:nowrap;
+        overflow:hidden;
+        text-overflow:ellipsis;
     }
 
+    .stat-grid .stat-card:nth-child(1){ --accent:#2F6FED; } /* Total */
+    .stat-grid .stat-card:nth-child(2){ --accent:#8A93A0; } /* Single Writer */
+    .stat-grid .stat-card:nth-child(3){ --accent:#22B573; } /* Saidali */
+    .stat-grid .stat-card:nth-child(4){ --accent:#8B5CF6; } /* Sahad */
+    .stat-grid .stat-card:nth-child(5){ --accent:#E3A008; } /* Sabin */
+    .stat-grid .stat-card:nth-child(6){ --accent:#E11D48; } /* Yousuf */
+    .stat-grid .stat-card:nth-child(7){ --accent:#14B8A6; } /* Mariyam */
+    .stat-grid .stat-card:nth-child(8){ --accent:#A855F7; } /* Adil */
+
+    .stat-grid-sub{
+        display:flex;
+        flex-wrap:wrap;
+    }
+    .stat-grid-sub .stat-card{
+        width:150px;
+        flex:0 0 150px;
+    }
+    .stat-grid-sub .stat-card:nth-child(1){ --accent:#5F7A5C; } /* Submitted */
+    .stat-grid-sub .stat-card:nth-child(2){ --accent:#A44239; } /* Not submitted */
+
+    /* --- Search box --- */
     .search-box{
         flex:1;
         min-width:220px;
@@ -266,7 +384,7 @@
     .search-box form{
         position:relative;
     }
-    .search-box input[type="search"]{
+    .search-box input[type="text"]{
         width:100%;
         background:var(--surface);
         border:1px solid var(--line);
@@ -275,12 +393,12 @@
         font-size:.9rem;
         color:var(--ink);
     }
-    .search-box input[type="search"]::placeholder{
+    .search-box input[type="text"]::placeholder{
         color:var(--slate);
     }
-    .search-box input[type="search"]:focus{
+    .search-box input[type="text"]:focus{
         outline:none;
-        border-color:var(--ink);
+        border-color:var(--brand);
     }
     .search-box .bi-search{
         position:absolute;
@@ -303,36 +421,47 @@
     }
     .search-box .clear-search:hover{ color:var(--ink); }
 
-    /* Hide native browser clear button on search inputs (webkit/blink) */
-    .search-box input[type="search"]::-webkit-search-cancel-button,
-    .search-box input[type="search"]::-webkit-search-decoration{
-        -webkit-appearance:none;
-        appearance:none;
-    }
-
 </style>
 
 
 <div class="register-wrap">
 
-        <div class="stat-grid">
-            {% for item in care_of_counts %}
-                <a href="{% if item.value %}?care_of={{ item.value }}{% else %}?care_of={% endif %}"
-                class="stat-card {% if care_of_applied and selected_care_of == item.value %}active{% endif %}">
+    {% csrf_token %}
+
+    <div class="stat-grid">
+        <a href="?" class="stat-card {% if not care_of_applied %}active{% endif %}">
+            <span class="stat-icon"><i class="bi bi-people-fill"></i></span>
+            <span class="stat-text">
+                <span class="stat-count">{{ total_count }}</span>
+                <span class="stat-label">Total</span>
+            </span>
+        </a>
+        {% for item in care_of_counts %}
+            <a href="{% if item.value %}?care_of={{ item.value }}{% else %}?care_of={% endif %}"
+               class="stat-card {% if care_of_applied and selected_care_of == item.value %}active{% endif %}">
+                <span class="stat-icon">
+                    {% if item.value %}
+                        <i class="bi bi-person-fill"></i>
+                    {% else %}
+                        <i class="bi bi-link-45deg"></i>
+                    {% endif %}
+                </span>
+                <span class="stat-text">
                     <span class="stat-count">{{ item.count }}</span>
                     <span class="stat-label">{{ item.label }}</span>
-                </a>
-            {% endfor %}
-        </div>
+                </span>
+            </a>
+        {% endfor %}
+    </div>
 
-        <div class="register-head">
-            <div class="search-box">
+    <div class="register-head">
+        <div class="search-box">
             <form method="GET">
                 {% if care_of_applied %}
                     <input type="hidden" name="care_of" value="{{ selected_care_of }}">
                 {% endif %}
                 <i class="bi bi-search"></i>
-                <input type="search" name="q" value="{{ search_query }}"
+                <input type="text" name="q" value="{{ search_query }}"
                     placeholder="Search learner, number, or writer…">
                 {% if search_query %}
                     <a href="{% if care_of_applied %}?care_of={{ selected_care_of }}{% else %}?{% endif %}"
@@ -352,6 +481,25 @@
             </button>
         </div>
     </div>
+    <div class="stat-grid stat-grid-sub">
+        <a href="?{% if care_of_applied %}care_of={{ selected_care_of|urlencode }}&{% endif %}{% if search_query %}q={{ search_query|urlencode }}&{% endif %}{% if selected_submitted != 'yes' %}submitted=yes{% endif %}"
+        class="stat-card {% if selected_submitted == 'yes' %}active{% endif %}">
+            <span class="stat-icon"><i class="bi bi-check-circle-fill"></i></span>
+            <span class="stat-text">
+                <span class="stat-count">{{ submitted_count }}</span>
+                <span class="stat-label">Submitted</span>
+            </span>
+        </a>
+
+        <a href="?{% if care_of_applied %}care_of={{ selected_care_of|urlencode }}&{% endif %}{% if search_query %}q={{ search_query|urlencode }}&{% endif %}{% if selected_submitted != 'no' %}submitted=no{% endif %}"
+        class="stat-card {% if selected_submitted == 'no' %}active{% endif %}">
+            <span class="stat-icon"><i class="bi bi-x-circle-fill"></i></span>
+            <span class="stat-text">
+                <span class="stat-count">{{ not_submitted_count }}</span>
+                <span class="stat-label">Not Submitted</span>
+            </span>
+        </a>
+    </div>
 
     <!-- Table -->
     <div class="ledger">
@@ -366,7 +514,7 @@
                         <div class="dropdown">
                             <a href="#"
                             class="d-inline-flex align-items-center gap-1 text-decoration-none"
-                            style="color:var(--slate);"
+                            style="color:#fff;"
                             id="careOfFilterBtn"
                             data-bs-toggle="dropdown"
                             aria-expanded="false">
@@ -407,23 +555,35 @@
                 <tr>
                     <td>{{ forloop.counter }}</td>
                     <td class="learner-number">{{ record.learner_number }}</td>
-                    <td class="learner-name">{{ record.learner_name }}</td>
+                    <td>
+                        <span class="learner-name editable-name"
+                              data-id="{{ record.id }}"
+                              title="Click to edit name">{{ record.learner_name }}</span>
+                    </td>
                     <td>{{ record.writer }}{% if record.care_of %}({{record.care_of}}){% endif %}</td>
 
                     <td>
-                        {% if record.submitted %}
-                            <span class="pill pill-yes">Submitted</span>
-                        {% else %}
-                            <span class="pill pill-no">Not submitted</span>
-                        {% endif %}
+                        <label class="tick-toggle">
+                            <input type="checkbox"
+                                   class="toggle-checkbox"
+                                   data-id="{{ record.id }}"
+                                   data-field="submitted"
+                                   {% if record.submitted %}checked{% endif %}>
+                            <span class="tick-box"><i class="bi bi-check-lg"></i></span>
+                            <span class="tick-label">{% if record.submitted %}Submitted{% else %}Not submitted{% endif %}</span>
+                        </label>
                     </td>
 
                     <td>
-                        {% if record.uploaded %}
-                            <span class="pill pill-yes">Uploaded</span>
-                        {% else %}
-                            <span class="pill pill-no">Not uploaded</span>
-                        {% endif %}
+                        <label class="tick-toggle">
+                            <input type="checkbox"
+                                   class="toggle-checkbox"
+                                   data-id="{{ record.id }}"
+                                   data-field="uploaded"
+                                   {% if record.uploaded %}checked{% endif %}>
+                            <span class="tick-box"><i class="bi bi-check-lg"></i></span>
+                            <span class="tick-label">{% if record.uploaded %}Uploaded{% else %}Not uploaded{% endif %}</span>
+                        </label>
                     </td>
 
                     <td>
@@ -511,16 +671,6 @@
                             <label class="form-label">Learner name</label>
                             <input type="text" name="learner_name" class="form-control" required>
                         </div>
-
-                        {% comment %} <div class="col-md-6">
-                            <label class="form-label">Writer</label>
-                            <select name="writer" class="form-select" required>
-                                <option value="">Select writer</option>
-                                {% for author in authors %}
-                                <option value="{{ author.id }}">{{ author.get_full_name }}</option>
-                                {% endfor %}
-                            </select>
-                        </div> {% endcomment %}
 
                          <div class="col-md-6">
                             <label class="form-label">Writer</label>
@@ -658,6 +808,107 @@
 </div>
 
 <script>
+
+const csrftoken = document.querySelector('.register-wrap input[name=csrfmiddlewaretoken]').value;
+
+function inlineUpdate(recordId, field, value) {
+    return fetch(`/inline-update/${recordId}/`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": csrftoken
+        },
+        body: JSON.stringify({ field: field, value: value })
+    }).then(res => {
+        if (!res.ok) throw new Error("Update failed");
+        return res.json();
+    });
+}
+
+/* ---- Submitted / Uploaded tick checkboxes ---- */
+document.querySelectorAll(".toggle-checkbox").forEach(cb => {
+    cb.addEventListener("change", function () {
+        const id = this.dataset.id;
+        const field = this.dataset.field;
+        const value = this.checked;
+        const wrapper = this.closest(".tick-toggle");
+        const labelSpan = wrapper.querySelector(".tick-label");
+        const prevChecked = !value;
+
+        wrapper.classList.add("saving");
+
+        const onText = field === "submitted" ? "Submitted" : "Uploaded";
+        const offText = field === "submitted" ? "Not submitted" : "Not uploaded";
+        labelSpan.textContent = value ? onText : offText;
+
+        inlineUpdate(id, field, value)
+            .then(() => {
+                // keep the matching data-* attribute in sync so the Edit modal opens with correct values
+                const editBtn = document.querySelector(`.edit-btn[data-id="${id}"]`);
+                if (editBtn) editBtn.dataset[field] = value ? "1" : "0";
+            })
+            .catch(() => {
+                this.checked = prevChecked;
+                labelSpan.textContent = prevChecked ? onText : offText;
+                alert("Could not update. Please check your connection and try again.");
+            })
+            .finally(() => {
+                wrapper.classList.remove("saving");
+            });
+    });
+});
+
+/* ---- Click-to-edit learner name ---- */
+document.querySelectorAll(".editable-name").forEach(span => {
+    span.addEventListener("click", function () {
+        if (this.querySelector("input")) return; // already editing
+
+        const id = this.dataset.id;
+        const currentText = this.textContent.trim();
+
+        const input = document.createElement("input");
+        input.type = "text";
+        input.value = currentText;
+        input.className = "editable-name-input";
+
+        this.textContent = "";
+        this.appendChild(input);
+        input.focus();
+        input.select();
+
+        let finished = false;
+
+        const finishEdit = (save) => {
+            if (finished) return;
+            finished = true;
+
+            const newValue = input.value.trim();
+
+            if (save && newValue && newValue !== currentText) {
+                inlineUpdate(id, "learner_name", newValue)
+                    .then(data => {
+                        span.textContent = data.value;
+                        const editBtn = document.querySelector(`.edit-btn[data-id="${id}"]`);
+                        if (editBtn) editBtn.dataset.name = data.value;
+                        const deleteBtn = document.querySelector(`.delete-btn[data-id="${id}"]`);
+                        if (deleteBtn) deleteBtn.dataset.name = data.value;
+                    })
+                    .catch(() => {
+                        span.textContent = currentText;
+                        alert("Could not update name. Please try again.");
+                    });
+            } else {
+                span.textContent = currentText;
+            }
+        };
+
+        input.addEventListener("blur", () => finishEdit(true));
+        input.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") { e.preventDefault(); input.blur(); }
+            if (e.key === "Escape") { finished = true; span.textContent = currentText; }
+        });
+    });
+});
 
 document.querySelectorAll(".edit-btn").forEach(button => {
     button.addEventListener("click", function () {

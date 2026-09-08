@@ -11,7 +11,7 @@ class ExamRecord(models.Model):
     """
 
     class CareOf(models.TextChoices):
-        NONE = "", "No relation"
+        NONE = "", "Single Writer"
         SAIDALI = "SAIDALI", "Saidali"
         SAHAD = "SAHAD", "Sahad"
         SABIN = "SABIN", "Sabin"
