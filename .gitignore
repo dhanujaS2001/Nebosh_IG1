@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Ignore migration files
+**/migrations/*.py
+**/migrations/*.pyc
+
+# Keep the migrations package
+!**/migrations/__init__.py
+
+
+# Virtual environment
+env/
+venv/
+.venv/
+
+# Environment variables
+.env
+
+# Static files
+staticfiles/
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# OS
+Thumbs.db
+.DS_Store
+
+db.sqlite3
+media/

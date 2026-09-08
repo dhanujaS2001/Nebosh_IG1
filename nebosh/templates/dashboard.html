@@ -1,0 +1,689 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lora:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+
+    :root{
+        --ink:        #1E2A30;
+        --slate:      #5B6670;
+        --paper:      #F3F4F0;
+        --surface:    #FFFFFF;
+        --line:       #DBDED5;
+        --gold:       #B3812A;
+        --gold-tint:  #F4E9D4;
+        --brick:      #A44239;
+        --brick-tint: #F3E0DD;
+        --sage:       #5F7A5C;
+        --sage-tint:  #E2EADF;
+    }
+
+    .register-wrap{
+        font-family:"Inter", -apple-system, sans-serif;
+        color:var(--ink);
+        background:var(--paper);
+        padding:2.5rem 1.5rem 4rem;
+        border-radius:6px;
+    }
+
+    .register-head{
+        display:flex;
+        justify-content:space-between;
+        align-items:flex-end;
+        flex-wrap:wrap;
+        gap:1rem;
+        margin-bottom:2rem;
+    }
+
+    .register-head h1{
+        font-family:"Lora", Georgia, serif;
+        font-weight:600;
+        font-size:1.9rem;
+        margin:0 0 .3rem 0;
+        color:var(--ink);
+    }
+
+    .register-head p{
+        margin:0;
+        color:var(--slate);
+        font-size:.95rem;
+    }
+
+    .head-actions{
+        display:flex;
+        gap:.6rem;
+    }
+
+    .btn-ink{
+        background:var(--ink);
+        border:1px solid var(--ink);
+        color:#fff;
+        font-size:.9rem;
+        padding:.5rem 1rem;
+        border-radius:4px;
+        display:inline-flex;
+        align-items:center;
+        gap:.45rem;
+        transition:background .15s ease;
+    }
+    .btn-ink:hover{ background:#0F1720; color:#fff; }
+
+    .btn-outline-ink{
+        background:transparent;
+        border:1px solid var(--line);
+        color:var(--ink);
+        font-size:.9rem;
+        padding:.5rem 1rem;
+        border-radius:4px;
+        display:inline-flex;
+        align-items:center;
+        gap:.45rem;
+        transition:border-color .15s ease, background .15s ease;
+    }
+    .btn-outline-ink:hover{ border-color:var(--ink); background:var(--surface); color:var(--ink); }
+
+    /* table (ledger style) */
+    .ledger{
+        background:var(--surface);
+        border:1px solid var(--line);
+        border-radius:6px;
+        /* overflow:hidden removed — was clipping the filter dropdown */
+    }
+
+    table.ledger-table{
+        width:100%;
+        border-collapse:collapse;
+        margin:0;
+    }
+
+    .dropdown-menu{
+        border:1px solid var(--line);
+        border-radius:6px;
+        box-shadow:0 4px 14px rgba(30,42,48,.08);
+        padding:.4rem;
+        min-width:180px;
+    }
+    .dropdown-item{
+        border-radius:4px;
+        padding:.45rem .7rem;
+        font-size:.9rem;
+        color:var(--ink);
+    }
+    .dropdown-item:hover,
+    .dropdown-item:focus{
+        background:var(--paper);
+        color:var(--ink);
+    }
+    .dropdown-item.active,
+    .dropdown-item:active{
+        background:var(--ink);
+        color:#fff;
+    }
+    .dropdown-divider{
+        border-color:var(--line);
+        margin:.4rem 0;
+    }
+
+    table.ledger-table thead th{
+        background:var(--surface);
+        color:var(--slate);
+        font-weight:500;
+        font-size:.8rem;
+        text-transform:none;
+        letter-spacing:.01em;
+        border-bottom:1px solid var(--line);
+        padding:.85rem 1rem;
+        white-space:nowrap;
+    }
+    table.ledger-table tbody td{
+        padding:.85rem 1rem;
+        border-bottom:1px solid var(--line);
+        font-size:.92rem;
+        vertical-align:middle;
+    }
+    table.ledger-table tbody tr:last-child td{ border-bottom:none; }
+    table.ledger-table tbody tr:hover{ background:#FAFAF8; } 
+
+    .learner-name{ font-weight:600; color:var(--ink); }
+    .learner-number{ color:var(--slate); font-size:.85rem; }
+
+    .mark-value{
+        font-variant-numeric:tabular-nums;
+        font-weight:600;
+    }
+
+    .pill{
+        display:inline-flex;
+        align-items:center;
+        gap:.35rem;
+        padding:.28rem .7rem;
+        border-radius:20px;
+        font-size:.78rem;
+        font-weight:500;
+        line-height:1;
+    }
+    .pill::before{
+        content:"";
+        width:6px;
+        height:6px;
+        border-radius:50%;
+    }
+    .pill-yes{ background:var(--sage-tint); color:var(--sage); }
+    .pill-yes::before{ background:var(--sage); }
+    .pill-no{ background:#EFEFEA; color:var(--slate); }
+    .pill-no::before{ background:var(--slate); }
+    .pill-pass{ background:var(--sage-tint); color:var(--sage); }
+    .pill-pass::before{ background:var(--sage); }
+    .pill-fail{ background:var(--brick-tint); color:var(--brick); }
+    .pill-fail::before{ background:var(--brick); }
+    .pill-pending{ background:var(--gold-tint); color:var(--gold); }
+    .pill-pending::before{ background:var(--gold); }
+
+    .row-actions{
+        display:flex;
+        gap:.4rem;
+    }
+    .icon-btn{
+        width:32px;
+        height:32px;
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+        border-radius:4px;
+        border:1px solid var(--line);
+        background:var(--surface);
+        color:var(--slate);
+        transition:all .15s ease;
+    }
+    .icon-btn:hover{ border-color:var(--ink); color:var(--ink); }
+    .icon-btn.danger:hover{ border-color:var(--brick); color:var(--brick); }
+
+    .empty-state{
+        text-align:center;
+        padding:3rem 1rem;
+        color:var(--slate);
+    }
+    .empty-state .bi{ font-size:1.8rem; color:var(--line); display:block; margin-bottom:.6rem; }
+
+    /* modal tweaks */
+    .modal-content{ border-radius:8px; border:1px solid var(--line); }
+    .modal-header{ border-bottom:1px solid var(--line); }
+    .modal-header .modal-title{ font-family:"Lora", serif; font-weight:600; font-size:1.2rem; }
+    .modal-footer{ border-top:1px solid var(--line); }
+    .form-label{ font-size:.85rem; color:var(--slate); font-weight:500; }
+
+    @media (max-width:768px){
+        .register-head{ align-items:flex-start; }
+    }
+
+    .stat-grid{
+        display:grid;
+        grid-template-columns:repeat(auto-fit, minmax(140px, 1fr));
+        gap:.75rem;
+        margin-bottom:1.5rem;
+    }
+    .stat-card{
+        background:var(--surface);
+        border:1px solid var(--line);
+        border-radius:6px;
+        padding:.9rem 1rem;
+        text-decoration:none;
+        display:block;
+        transition:border-color .15s ease, box-shadow .15s ease;
+    }
+    .stat-card:hover{
+        border-color:var(--ink);
+        box-shadow:0 2px 8px rgba(30,42,48,.06);
+    }
+    .stat-card.active{
+        border-color:var(--ink);
+        background:var(--paper);
+    }
+    .stat-card .stat-count{
+        font-family:"Lora", Georgia, serif;
+        font-weight:600;
+        font-size:1.6rem;
+        color:var(--ink);
+        line-height:1;
+        display:block;
+        margin-bottom:.3rem;
+    }
+    .stat-card .stat-label{
+        font-size:.8rem;
+        color:var(--slate);
+        text-transform:uppercase;
+        letter-spacing:.02em;
+    }
+
+    .search-box{
+        flex:1;
+        min-width:220px;
+        max-width:340px;
+    }
+    .search-box form{
+        position:relative;
+    }
+    .search-box input[type="search"]{
+        width:100%;
+        background:var(--surface);
+        border:1px solid var(--line);
+        border-radius:4px;
+        padding:.5rem .75rem .5rem 2.2rem;
+        font-size:.9rem;
+        color:var(--ink);
+    }
+    .search-box input[type="search"]::placeholder{
+        color:var(--slate);
+    }
+    .search-box input[type="search"]:focus{
+        outline:none;
+        border-color:var(--ink);
+    }
+    .search-box .bi-search{
+        position:absolute;
+        left:.75rem;
+        top:50%;
+        transform:translateY(-50%);
+        color:var(--slate);
+        font-size:.85rem;
+        pointer-events:none;
+    }
+    .search-box .clear-search{
+        position:absolute;
+        right:.6rem;
+        top:50%;
+        transform:translateY(-50%);
+        color:var(--slate);
+        font-size:.85rem;
+        text-decoration:none;
+        line-height:1;
+    }
+    .search-box .clear-search:hover{ color:var(--ink); }
+
+    /* Hide native browser clear button on search inputs (webkit/blink) */
+    .search-box input[type="search"]::-webkit-search-cancel-button,
+    .search-box input[type="search"]::-webkit-search-decoration{
+        -webkit-appearance:none;
+        appearance:none;
+    }
+
+</style>
+
+
+<div class="register-wrap">
+
+        <div class="stat-grid">
+            {% for item in care_of_counts %}
+                <a href="{% if item.value %}?care_of={{ item.value }}{% else %}?care_of={% endif %}"
+                class="stat-card {% if care_of_applied and selected_care_of == item.value %}active{% endif %}">
+                    <span class="stat-count">{{ item.count }}</span>
+                    <span class="stat-label">{{ item.label }}</span>
+                </a>
+            {% endfor %}
+        </div>
+
+        <div class="register-head">
+            <div class="search-box">
+            <form method="GET">
+                {% if care_of_applied %}
+                    <input type="hidden" name="care_of" value="{{ selected_care_of }}">
+                {% endif %}
+                <i class="bi bi-search"></i>
+                <input type="search" name="q" value="{{ search_query }}"
+                    placeholder="Search learner, number, or writer…">
+                {% if search_query %}
+                    <a href="{% if care_of_applied %}?care_of={{ selected_care_of }}{% else %}?{% endif %}"
+                    class="clear-search" title="Clear search">
+                        <i class="bi bi-x-circle"></i>
+                    </a>
+                {% endif %}
+            </form>
+        </div>
+
+        <div class="head-actions">
+            {% comment %} <a href="#" class="btn-outline-ink" title="Download all ready files">
+                <i class="bi bi-download"></i> Download all
+            </a> {% endcomment %}
+            <button class="btn-ink" data-bs-toggle="modal" data-bs-target="#addModal">
+                <i class="bi bi-plus-lg"></i> Add record
+            </button>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="ledger">
+        <table class="ledger-table">
+            <thead>
+                <tr>
+                    <th>Sl No</th>
+                    <th>Learner No</th>
+                    <th>Learner Name</th>
+                    {% comment %} <th>Writer</th> {% endcomment %}
+                    <th>
+                        <div class="dropdown">
+                            <a href="#"
+                            class="d-inline-flex align-items-center gap-1 text-decoration-none"
+                            style="color:var(--slate);"
+                            id="careOfFilterBtn"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false">
+                                Writer
+                                <i class="bi bi-funnel{% if selected_care_of %}-fill{% endif %}" style="font-size:.75rem;"></i>
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="careOfFilterBtn">
+                                <li>
+                                    <a class="dropdown-item {% if not care_of_applied %}active{% endif %}"
+                                        href="?">
+                                            All
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                {% for value, label in care_of %}
+                                    
+                                    <li>
+                                        <a class="dropdown-item {% if care_of_applied and selected_care_of == value %}active{% endif %}"
+                                        href="?care_of={{ value }}">
+                                            {{ label }}
+                                        </a>
+                                    </li>
+                               
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </th>
+                    <th>Submitted</th>
+                    <th>Uploaded</th>
+                    <th>Mark</th>
+                    <th>Result</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                {% for record in exam_records %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td class="learner-number">{{ record.learner_number }}</td>
+                    <td class="learner-name">{{ record.learner_name }}</td>
+                    <td>{{ record.writer }}{% if record.care_of %}({{record.care_of}}){% endif %}</td>
+
+                    <td>
+                        {% if record.submitted %}
+                            <span class="pill pill-yes">Submitted</span>
+                        {% else %}
+                            <span class="pill pill-no">Not submitted</span>
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {% if record.uploaded %}
+                            <span class="pill pill-yes">Uploaded</span>
+                        {% else %}
+                            <span class="pill pill-no">Not uploaded</span>
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {% if record.mark is not None %}
+                            <span class="mark-value">{{ record.mark }}</span><span style="color:var(--slate)">/100</span>
+                        {% else %}
+                            <span style="color:var(--slate)">-</span>
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {% if record.result == "PASS" %}
+                            <span class="pill pill-pass">Pass</span>
+                        {% elif record.result == "FAIL" %}
+                            <span class="pill pill-fail">Fail</span>
+                        {% else %}
+                            <span class="pill pill-pending">Pending</span>
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        <div class="row-actions">
+
+                            <button class="icon-btn edit-btn"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#editModal"
+                                    data-id="{{ record.id }}"
+                                    data-number="{{ record.learner_number }}"
+                                    data-name="{{ record.learner_name }}"
+                                    data-writer="{{ record.writer }}"
+                                    data-careof="{{ record.care_of|default:'' }}"
+                                    data-mark="{{ record.mark|default_if_none:'' }}"
+                                    data-submitted="{{ record.submitted|yesno:'1,0' }}"
+                                    data-uploaded="{{ record.uploaded|yesno:'1,0' }}"
+                                    title="Edit record">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+
+                            <button class="icon-btn danger delete-btn"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#deleteModal"
+                                    data-id="{{ record.id }}"
+                                    data-name="{{ record.learner_name }}"
+                                    title="Delete record">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="9">
+                        <div class="empty-state">
+                            <i class="bi bi-inbox"></i>
+                            No records yet. Add a learner to get started.
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<!-- Add Record Modal -->
+<div class="modal fade" id="addModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form method="POST" action="{% url 'add_record' %}">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h5 class="modal-title">Add learner record</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Learner number</label>
+                            <input type="text" name="learner_number" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Learner name</label>
+                            <input type="text" name="learner_name" class="form-control" required>
+                        </div>
+
+                        {% comment %} <div class="col-md-6">
+                            <label class="form-label">Writer</label>
+                            <select name="writer" class="form-select" required>
+                                <option value="">Select writer</option>
+                                {% for author in authors %}
+                                <option value="{{ author.id }}">{{ author.get_full_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div> {% endcomment %}
+
+                         <div class="col-md-6">
+                            <label class="form-label">Writer</label>
+                            <input type="text" name="writer" class="form-control" placeholder="Writer's name" required>
+                        </div>
+ 
+                        <div class="col-md-6">
+                            <label class="form-label">C/O (referred by)</label>
+                            <select name="care_of" class="form-select">
+                            {% for value, label in care_of %}
+                                <option value="{{ value }}">{{ label }}</option>
+                            {% endfor %}
+                            </select>
+                            
+                        </div>
+
+                        <div class="col-md-3 d-flex align-items-end">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="submitted" id="add_submitted">
+                                <label class="form-check-label" for="add_submitted">Submitted</label>
+                            </div>
+                        </div>
+                        <div class="col-md-3 d-flex align-items-end">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="uploaded" id="add_uploaded">
+                                <label class="form-check-label" for="add_uploaded">Uploaded</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-ink" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-ink">Add record</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<!-- Edit Modal -->
+<div class="modal fade" id="editModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form method="POST" action="{% url 'update_record' record_id=0 %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" name="record_id" id="edit_record_id">
+ 
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit record</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+ 
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Learner number</label>
+                            <input type="text" name="learner_number" id="edit_learner_number" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Learner name</label>
+                            <input type="text" name="learner_name" id="edit_learner_name" class="form-control">
+                        </div>
+ 
+                        <div class="col-md-6">
+                            <label class="form-label">Writer</label>
+                            <input type="text" name="writer" id="edit_writer" class="form-control" placeholder="Writer's name">
+                        </div>
+ 
+                        <div class="col-md-6">
+                            <label class="form-label">C/O (referred by)</label>
+                            <select name="care_of" id="edit_care_of" class="form-select">
+                                {% for value, label in care_of %}
+                                <option value="{{ value }}" {% if value == selected_care_of %}selected{% endif %}>
+                                    {{ label }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+ 
+                        <div class="col-md-6">
+                            <label class="form-label">Mark </label>
+                            <input type="number" name="mark" id="edit_mark" class="form-control" min="0" max="100">
+                        </div>
+ 
+                        <div class="col-md-3 d-flex align-items-end">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="submitted" id="edit_submitted">
+                                <label class="form-check-label" for="edit_submitted">Submitted</label>
+                            </div>
+                        </div>
+                        <div class="col-md-3 d-flex align-items-end">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="uploaded" id="edit_uploaded">
+                                <label class="form-check-label" for="edit_uploaded">Uploaded</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+ 
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-ink" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-ink">Save changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirm Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST" action="{% url 'delete_record' record_id=0 %}">
+                {% csrf_token %}
+                <input type="hidden" name="record_id" id="delete_record_id">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">Delete record</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <p>Are you sure you want to delete this record?</p>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-ink" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn" style="background:var(--brick); color:#fff;">Delete record</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+
+document.querySelectorAll(".edit-btn").forEach(button => {
+    button.addEventListener("click", function () {
+
+        const form = document.querySelector("#editModal form");
+        form.action = form.action.replace(/\/\d+\/$/, `/${this.dataset.id}/`);
+
+        document.getElementById("edit_record_id").value = this.dataset.id;
+        document.getElementById("edit_learner_number").value = this.dataset.number;
+        document.getElementById("edit_learner_name").value = this.dataset.name;
+        document.getElementById("edit_writer").value = this.dataset.writer;
+        document.getElementById("edit_care_of").value = this.dataset.careof;
+        document.getElementById("edit_mark").value = this.dataset.mark;
+        document.getElementById("edit_submitted").checked = this.dataset.submitted === "1";
+        document.getElementById("edit_uploaded").checked = this.dataset.uploaded === "1";
+    });
+});
+
+document.querySelectorAll(".delete-btn").forEach(button => {
+    button.addEventListener("click", function () {
+        const form = document.querySelector("#deleteModal form");
+        form.action = form.action.replace(/\/\d+\/$/, `/${this.dataset.id}/`);
+        document.getElementById("delete_record_id").value = this.dataset.id;
+    });
+});
+
+</script>
+
+{% endblock %}
