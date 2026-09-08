@@ -25,7 +25,7 @@ class ExamRecord(models.Model):
         FAIL = "FAIL", "Fail"
 
     # --- Learner ---
-    learner_number = models.CharField(max_length=50, unique=True)
+    learner_number = models.CharField(max_length=50)
     learner_name = models.CharField(max_length=150)
 
     # --- Writer ---

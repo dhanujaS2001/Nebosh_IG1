@@ -146,7 +146,8 @@
     }
     table.ledger-table thead tr:first-child th:first-child{ border-top-left-radius:8px; }
     table.ledger-table thead tr:first-child th:last-child{ border-top-right-radius:8px; }
-    #careOfFilterBtn{ color:#fff !important; }
+    #careOfFilterBtn,
+    #submittedFilterBtn{ color:#fff !important; }
 
     table.ledger-table tbody td{
         padding:.85rem 1rem;
@@ -159,6 +160,24 @@
 
     .learner-name{ font-weight:600; color:var(--ink); }
     .learner-number{ color:var(--slate); font-size:.85rem; }
+
+    .editable-number{
+        cursor:text;
+        border-bottom:1px dashed transparent;
+        padding-bottom:1px;
+        transition:border-color .15s ease;
+        display:inline-block;
+        min-width:60px;
+        min-height:1.2em;
+    }
+    .editable-number:hover{
+        border-bottom-color:var(--line);
+    }
+    .editable-number.editable-name-empty{
+        color:var(--slate);
+        font-style:italic;
+        border-bottom-color:var(--line);
+    }
 
     .mark-value{
         font-variant-numeric:tabular-nums;
@@ -251,8 +270,17 @@
         border-bottom:1px dashed transparent;
         padding-bottom:1px;
         transition:border-color .15s ease;
+        display:inline-block;
+        min-width:70px;
+        min-height:1.2em;
     }
     .editable-name:hover{
+        border-bottom-color:var(--line);
+    }
+    .editable-name-empty{
+        color:var(--slate);
+        font-weight:400;
+        font-style:italic;
         border-bottom-color:var(--line);
     }
     .editable-name-input{
@@ -275,8 +303,17 @@
         transition:border-color .15s ease;
         font-weight:600;
         color:var(--ink);
+        display:inline-block;
+        min-width:70px;
+        min-height:1.2em;
     }
     .editable-writer:hover{
+        border-bottom-color:var(--line);
+    }
+    .editable-writer.editable-name-empty{
+        color:var(--slate);
+        font-weight:400;
+        font-style:italic;
         border-bottom-color:var(--line);
     }
 
@@ -554,7 +591,40 @@
                             </ul>
                         </div>
                     </th>
-                    <th>Submitted</th>
+                    <th>
+                        <div class="dropdown">
+                            <a href="#"
+                            class="d-inline-flex align-items-center gap-1 text-decoration-none"
+                            style="color:#fff;"
+                            id="submittedFilterBtn"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false">
+                                Submitted
+                                <i class="bi bi-funnel{% if selected_submitted %}-fill{% endif %}" style="font-size:.75rem;"></i>
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="submittedFilterBtn">
+                                <li>
+                                    <a class="dropdown-item {% if not submitted_applied %}active{% endif %}"
+                                        href="?{% if care_of_applied %}care_of={{ selected_care_of|urlencode }}&{% endif %}{% if search_query %}q={{ search_query|urlencode }}{% endif %}">
+                                            All
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item {% if selected_submitted == 'yes' %}active{% endif %}"
+                                        href="?{% if care_of_applied %}care_of={{ selected_care_of|urlencode }}&{% endif %}{% if search_query %}q={{ search_query|urlencode }}&{% endif %}submitted=yes">
+                                            Submitted
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item {% if selected_submitted == 'no' %}active{% endif %}"
+                                        href="?{% if care_of_applied %}care_of={{ selected_care_of|urlencode }}&{% endif %}{% if search_query %}q={{ search_query|urlencode }}&{% endif %}submitted=no">
+                                            Not submitted
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </th>
                     <th>Uploaded</th>
                     <th>Mark</th>
                     <th>Result</th>
@@ -566,16 +636,20 @@
                 {% for record in exam_records %}
                 <tr>
                     <td>{{ forloop.counter }}</td>
-                    <td class="learner-number">{{ record.learner_number }}</td>
                     <td>
-                        <span class="learner-name editable-name"
+                        <span class="learner-number editable-number{% if not record.learner_number %} editable-name-empty{% endif %}"
                               data-id="{{ record.id }}"
-                              title="Click to edit name">{{ record.learner_name }}</span>
+                              title="Click to edit learner number">{{ record.learner_number|default:"Add number" }}</span>
                     </td>
                     <td>
-                        <span class="editable-writer"
+                        <span class="learner-name editable-name{% if not record.learner_name %} editable-name-empty{% endif %}"
                               data-id="{{ record.id }}"
-                              title="Click to edit writer">{{ record.writer }}</span>{% if record.care_of %}({{record.care_of}}){% endif %}
+                              title="Click to edit name">{{ record.learner_name|default:"Add name" }}</span>
+                    </td>
+                    <td>
+                        <span class="editable-writer{% if not record.writer %} editable-name-empty{% endif %}"
+                              data-id="{{ record.id }}"
+                              title="Click to edit writer">{{ record.writer|default:"Add writer" }}</span>{% if record.care_of %}({{record.care_of}}){% endif %}
                     </td>
 
                     <td>
@@ -681,11 +755,11 @@
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label class="form-label">Learner number</label>
-                            <input type="text" name="learner_number" class="form-control" required>
+                            <input type="text" name="learner_number" class="form-control" >
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Learner name</label>
-                            <input type="text" name="learner_name" class="form-control" required>
+                            <input type="text" name="learner_name" class="form-control" >
                         </div>
 
                          <div class="col-md-6">
@@ -827,6 +901,16 @@
 
 const csrftoken = document.querySelector('.register-wrap input[name=csrfmiddlewaretoken]').value;
 
+/* ---- Dropdowns inside the scrollable ledger must escape it, not scroll with it ---- */
+window.addEventListener("load", function () {
+    if (typeof bootstrap === "undefined" || !bootstrap.Dropdown) return;
+    document.querySelectorAll('.ledger [data-bs-toggle="dropdown"]').forEach(el => {
+        bootstrap.Dropdown.getOrCreateInstance(el, {
+            popperConfig: { strategy: "fixed" }
+        });
+    });
+});
+
 function inlineUpdate(recordId, field, value) {
     return fetch(`/inline-update/${recordId}/`, {
         method: "POST",
@@ -880,11 +964,13 @@ document.querySelectorAll(".editable-name").forEach(span => {
         if (this.querySelector("input")) return; // already editing
 
         const id = this.dataset.id;
-        const currentText = this.textContent.trim();
+        const isEmpty = this.classList.contains("editable-name-empty");
+        const currentText = isEmpty ? "" : this.textContent.trim();
 
         const input = document.createElement("input");
         input.type = "text";
         input.value = currentText;
+        input.placeholder = "Learner name";
         input.className = "editable-name-input";
 
         this.textContent = "";
@@ -904,24 +990,31 @@ document.querySelectorAll(".editable-name").forEach(span => {
                 inlineUpdate(id, "learner_name", newValue)
                     .then(data => {
                         span.textContent = data.value;
+                        span.classList.remove("editable-name-empty");
                         const editBtn = document.querySelector(`.edit-btn[data-id="${id}"]`);
                         if (editBtn) editBtn.dataset.name = data.value;
                         const deleteBtn = document.querySelector(`.delete-btn[data-id="${id}"]`);
                         if (deleteBtn) deleteBtn.dataset.name = data.value;
                     })
                     .catch(() => {
-                        span.textContent = currentText;
+                        span.textContent = currentText || "Add name";
+                        if (!currentText) span.classList.add("editable-name-empty");
                         alert("Could not update name. Please try again.");
                     });
             } else {
-                span.textContent = currentText;
+                span.textContent = currentText || "Add name";
+                if (!currentText) span.classList.add("editable-name-empty");
             }
         };
 
         input.addEventListener("blur", () => finishEdit(true));
         input.addEventListener("keydown", (e) => {
             if (e.key === "Enter") { e.preventDefault(); input.blur(); }
-            if (e.key === "Escape") { finished = true; span.textContent = currentText; }
+            if (e.key === "Escape") {
+                finished = true;
+                span.textContent = currentText || "Add name";
+                if (!currentText) span.classList.add("editable-name-empty");
+            }
         });
     });
 });
@@ -932,11 +1025,13 @@ document.querySelectorAll(".editable-writer").forEach(span => {
         if (this.querySelector("input")) return; // already editing
 
         const id = this.dataset.id;
-        const currentText = this.textContent.trim();
+        const isEmpty = this.classList.contains("editable-name-empty");
+        const currentText = isEmpty ? "" : this.textContent.trim();
 
         const input = document.createElement("input");
         input.type = "text";
         input.value = currentText;
+        input.placeholder = "Writer";
         input.className = "editable-name-input";
 
         this.textContent = "";
@@ -956,22 +1051,89 @@ document.querySelectorAll(".editable-writer").forEach(span => {
                 inlineUpdate(id, "writer", newValue)
                     .then(data => {
                         span.textContent = data.value;
+                        span.classList.remove("editable-name-empty");
                         const editBtn = document.querySelector(`.edit-btn[data-id="${id}"]`);
                         if (editBtn) editBtn.dataset.writer = data.value;
                     })
                     .catch(() => {
-                        span.textContent = currentText;
+                        span.textContent = currentText || "Add writer";
+                        if (!currentText) span.classList.add("editable-name-empty");
                         alert("Could not update writer. Please try again.");
                     });
             } else {
-                span.textContent = currentText;
+                span.textContent = currentText || "Add writer";
+                if (!currentText) span.classList.add("editable-name-empty");
             }
         };
 
         input.addEventListener("blur", () => finishEdit(true));
         input.addEventListener("keydown", (e) => {
             if (e.key === "Enter") { e.preventDefault(); input.blur(); }
-            if (e.key === "Escape") { finished = true; span.textContent = currentText; }
+            if (e.key === "Escape") {
+                finished = true;
+                span.textContent = currentText || "Add writer";
+                if (!currentText) span.classList.add("editable-name-empty");
+            }
+        });
+    });
+});
+
+/* ---- Click-to-edit learner number ---- */
+document.querySelectorAll(".editable-number").forEach(span => {
+    span.addEventListener("click", function () {
+        if (this.querySelector("input")) return; // already editing
+
+        const id = this.dataset.id;
+        const isEmpty = this.classList.contains("editable-name-empty");
+        const currentText = isEmpty ? "" : this.textContent.trim();
+
+        const input = document.createElement("input");
+        input.type = "text";
+        input.value = currentText;
+        input.placeholder = "Learner number";
+        input.className = "editable-name-input";
+        input.style.maxWidth = "140px";
+
+        this.textContent = "";
+        this.appendChild(input);
+        input.focus();
+        input.select();
+
+        let finished = false;
+
+        const finishEdit = (save) => {
+            if (finished) return;
+            finished = true;
+
+            const newValue = input.value.trim();
+
+            if (save && newValue && newValue !== currentText) {
+                inlineUpdate(id, "learner_number", newValue)
+                    .then(data => {
+                        span.textContent = data.value;
+                        span.classList.remove("editable-name-empty");
+                        const editBtn = document.querySelector(`.edit-btn[data-id="${id}"]`);
+                        if (editBtn) editBtn.dataset.number = data.value;
+                    })
+                    .catch(() => {
+                        span.textContent = currentText || "Add number";
+                        if (!currentText) span.classList.add("editable-name-empty");
+                        alert("Could not update learner number. Please try again.");
+                    });
+            } else {
+                span.textContent = currentText || "Add number";
+                if (!currentText) span.classList.add("editable-name-empty");
+            }
+        };
+
+        input.addEventListener("blur", () => finishEdit(true));
+        input.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") { e.preventDefault(); input.blur(); }
+            if (e.key === "Escape") {
+                finished = true;
+                span.textContent = currentText || "Add number";
+                if (!currentText) span.classList.add("editable-name-empty");
+            }
         });
     });
 });
