@@ -556,9 +556,6 @@
             <thead>
                 <tr>
                     <th>Sl No</th>
-                    <th>Learner No</th>
-                    <th>Learner Name</th>
-                    {% comment %} <th>Writer</th> {% endcomment %}
                     <th>
                         <div class="dropdown">
                             <a href="#"
@@ -591,6 +588,8 @@
                             </ul>
                         </div>
                     </th>
+                    <th>Learner No</th>
+                    <th>Learner Name</th>
                     <th>
                         <div class="dropdown">
                             <a href="#"
@@ -636,6 +635,11 @@
                 {% for record in exam_records %}
                 <tr>
                     <td>{{ forloop.counter }}</td>
+                     <td>
+                        <span class="editable-writer{% if not record.writer %} editable-name-empty{% endif %}"
+                              data-id="{{ record.id }}"
+                              title="Click to edit writer">{{ record.writer|default:"Add writer" }}</span>{% if record.care_of %}({{record.care_of}}){% endif %}
+                    </td>
                     <td>
                         <span class="learner-number editable-number{% if not record.learner_number %} editable-name-empty{% endif %}"
                               data-id="{{ record.id }}"
@@ -646,12 +650,6 @@
                               data-id="{{ record.id }}"
                               title="Click to edit name">{{ record.learner_name|default:"Add name" }}</span>
                     </td>
-                    <td>
-                        <span class="editable-writer{% if not record.writer %} editable-name-empty{% endif %}"
-                              data-id="{{ record.id }}"
-                              title="Click to edit writer">{{ record.writer|default:"Add writer" }}</span>{% if record.care_of %}({{record.care_of}}){% endif %}
-                    </td>
-
                     <td>
                         <label class="tick-toggle">
                             <input type="checkbox"
