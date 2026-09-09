@@ -489,11 +489,7 @@
             <a href="{% if item.value %}?care_of={{ item.value }}{% else %}?care_of={% endif %}"
                class="stat-card {% if care_of_applied and selected_care_of == item.value %}active{% endif %}">
                 <span class="stat-icon">
-                    {% if item.value %}
                         <i class="bi bi-person-fill"></i>
-                    {% else %}
-                        <i class="bi bi-link-45deg"></i>
-                    {% endif %}
                 </span>
                 <span class="stat-text">
                     <span class="stat-count">{{ item.count }}</span>

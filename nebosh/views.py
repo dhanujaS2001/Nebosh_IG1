@@ -14,7 +14,7 @@ def dashboard(request):
     # but not the submitted filter itself — this is what the submitted-status
     # counts are calculated against, so the numbers on the cards stay accurate
     # no matter which submitted-status card is currently selected.
-    base_qs = ExamRecord.objects.all()
+    base_qs = ExamRecord.objects.all().order_by("id")
     if care_of_applied:
         base_qs = base_qs.filter(care_of=care_of_filter)
     if search_query:
