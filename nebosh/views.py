@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.db.models import Count, Q
 from django.shortcuts import redirect, render
 from django.shortcuts import redirect, render, get_object_or_404
@@ -70,10 +71,12 @@ def add_record(request):
         writer = request.POST.get("writer")
         care_of = request.POST.get("care_of")
         submitted = request.POST.get("submitted") == "on"
-        print("Submitted:", submitted)  # Debugging line
         uploaded = request.POST.get("uploaded") == "on"
-        print("Uploaded:", uploaded)  # Debugging line
-
+        
+        if learner_number and ExamRecord.objects.filter(learner_number__iexact=learner_number).exists():
+            messages.error(request, f"Learner number '{learner_number}' already exists.")
+            return redirect("dashboard")
+        
         ExamRecord.objects.create(
             learner_number=learner_number,
             learner_name=learner_name,
@@ -90,8 +93,16 @@ def add_record(request):
 def update_record(request, record_id):
     if request.method == "POST":
         record = get_object_or_404(ExamRecord, id=record_id)
+        
+        learner_number = (request.POST.get("learner_number") or "").strip()
 
-        record.learner_number = request.POST.get("learner_number")
+        if learner_number and ExamRecord.objects.filter(
+            learner_number__iexact=learner_number
+        ).exclude(id=record.id).exists():
+            messages.error(request, f"Learner number '{learner_number}' already exists.")
+            return redirect("dashboard")
+
+        record.learner_number = learner_number
         record.learner_name = request.POST.get("learner_name")
         record.writer = request.POST.get("writer")
         record.care_of = request.POST.get("care_of")
@@ -147,6 +158,8 @@ def inline_update(request, record_id):
         value = (value or "").strip()
         if not value:
             return JsonResponse({"error": "Learner number cannot be empty"}, status=400)
+        if ExamRecord.objects.filter(learner_number__iexact=value).exclude(id=record.id).exists():
+            return JsonResponse({"error": f"Learner number '{value}' already exists"}, status=400)
         record.learner_number = value
 
     elif field in ("submitted", "uploaded"):

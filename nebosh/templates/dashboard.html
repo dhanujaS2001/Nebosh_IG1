@@ -913,9 +913,12 @@ function inlineUpdate(recordId, field, value) {
             "X-CSRFToken": csrftoken
         },
         body: JSON.stringify({ field: field, value: value })
-    }).then(res => {
-        if (!res.ok) throw new Error("Update failed");
-        return res.json();
+    }).then(async res => {
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+            throw new Error(data.error || "Update failed");
+        }
+        return data;
     });
 }
 
@@ -941,10 +944,10 @@ document.querySelectorAll(".toggle-checkbox").forEach(cb => {
                 const editBtn = document.querySelector(`.edit-btn[data-id="${id}"]`);
                 if (editBtn) editBtn.dataset[field] = value ? "1" : "0";
             })
-            .catch(() => {
+            .catch((err) => {
                 this.checked = prevChecked;
                 labelSpan.textContent = prevChecked ? onText : offText;
-                alert("Could not update. Please check your connection and try again.");
+                alert(err.message || "Could not update. Please check your connection and try again.");
             })
             .finally(() => {
                 wrapper.classList.remove("saving");
@@ -990,10 +993,10 @@ document.querySelectorAll(".editable-name").forEach(span => {
                         const deleteBtn = document.querySelector(`.delete-btn[data-id="${id}"]`);
                         if (deleteBtn) deleteBtn.dataset.name = data.value;
                     })
-                    .catch(() => {
+                    .catch((err) => {
                         span.textContent = currentText || "Add name";
                         if (!currentText) span.classList.add("editable-name-empty");
-                        alert("Could not update name. Please try again.");
+                        alert(err.message || "Could not update name. Please try again.");
                     });
             } else {
                 span.textContent = currentText || "Add name";
@@ -1049,10 +1052,10 @@ document.querySelectorAll(".editable-writer").forEach(span => {
                         const editBtn = document.querySelector(`.edit-btn[data-id="${id}"]`);
                         if (editBtn) editBtn.dataset.writer = data.value;
                     })
-                    .catch(() => {
+                    .catch((err) => {
                         span.textContent = currentText || "Add writer";
                         if (!currentText) span.classList.add("editable-name-empty");
-                        alert("Could not update writer. Please try again.");
+                        alert(err.message || "Could not update writer. Please try again.");
                     });
             } else {
                 span.textContent = currentText || "Add writer";
@@ -1109,10 +1112,10 @@ document.querySelectorAll(".editable-number").forEach(span => {
                         const editBtn = document.querySelector(`.edit-btn[data-id="${id}"]`);
                         if (editBtn) editBtn.dataset.number = data.value;
                     })
-                    .catch(() => {
+                    .catch((err) => {
                         span.textContent = currentText || "Add number";
                         if (!currentText) span.classList.add("editable-name-empty");
-                        alert("Could not update learner number. Please try again.");
+                        alert(err.message || "Could not update learner number. Please try again.");
                     });
             } else {
                 span.textContent = currentText || "Add number";
